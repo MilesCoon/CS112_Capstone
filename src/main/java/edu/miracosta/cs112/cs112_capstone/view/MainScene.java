@@ -11,7 +11,6 @@ import javafx.scene.layout.GridPane;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.*;
 
@@ -26,20 +25,27 @@ public class MainScene extends Scene {
     private final Button saveButton = new Button("Save");
     private final Button openButton = new Button("Open");
     private final Label errorLabel = new Label("Typos:");
+    private final Button wordCountButton = new Button("Check Word Count");
+    private final Label wordCount = new Label();
+    private Spellchecker spellchecker;
+    private WordCounter wordcounter;
 
-    private final Dictionary DICTIONARY = new Dictionary("C:/Users/miles/Downloads/WordListFolder", Language.ENGLISH);
+    private final Dictionary DICTIONARY = new Dictionary("words_alpha.txt", Language.ENGLISH);
 
     public MainScene() {
         super(new GridPane());
 
-        spellCheckButton.setOnAction(e -> checkSpelling());
+        spellCheckButton.setOnAction(e -> checkCurrentSpelling());
         openButton.setOnAction(e -> openDoc());
         saveButton.setOnAction(e -> saveDoc());
+        wordCountButton.setOnAction(e -> countWords());
 
         textArea.setPrefWidth(WIDTH);
         textArea.setPrefHeight(HEIGHT);
 
         GridPane gridPane = new GridPane();
+        gridPane.setVgap(2);
+
         gridPane.add(textArea,0,1);
         gridPane.add(errorLabel, 0, 2);
         badWordArea.setEditable(false);
@@ -49,14 +55,32 @@ public class MainScene extends Scene {
         gridPane.add(badWordArea,0,3);
 
         GridPane headerPane = new GridPane();
+        headerPane.setHgap(2);
         gridPane.add(headerPane,0,0);
 
         headerPane.add(titleField, 0,0);
-        headerPane.add(spellCheckButton,1,0);
-        headerPane.add(openButton,2,0);
-        headerPane.add(saveButton,3,0);
+        headerPane.add(openButton,1,0);
+        headerPane.add(saveButton,2,0);
+        headerPane.add(spellCheckButton,3,0);
+        headerPane.add(wordCountButton, 4,0);
+        headerPane.add(wordCount,5,0);
 
         this.setRoot(gridPane);
+    }
+
+    private void countWords() {
+        wordcounter = new WordCounter(textArea);
+        wordCount.setText("Word Count: " + Integer.toString(wordcounter.getWordCount()));
+    }
+
+    private void checkCurrentSpelling() {
+        spellchecker = new Spellchecker(DICTIONARY, textArea);
+        StringBuilder badWordList = new StringBuilder();
+        ArrayList<String> noMatches = spellchecker.checkSpelling();
+        for (String noMatch : noMatches) {
+            badWordList.append(noMatch).append(" ");
+        }
+        badWordArea.setText(badWordList.toString());
     }
 
     private void saveDoc() {
@@ -118,23 +142,5 @@ public class MainScene extends Scene {
                 System.err.println("An IOException occurred: " + e.getMessage());
             }
         }
-    }
-
-    private void checkSpelling() {
-        // Grab all text from textArea
-        var textAreaText = textArea.getText().replaceAll("\\p{Punct}", "").toLowerCase().split(" ");
-        // Parse textArea text into a list, removing punctuation
-        List<String> noMatches = new ArrayList<>();
-         for (int i = 0; i < textAreaText.length; i++) {
-             if (!DICTIONARY.getDictionaryList().contains(textAreaText[i])) {
-                 noMatches.add(textAreaText[i]);
-             }
-             // noMatches.add(DICTIONARY.getDictionaryList().stream().filter(it -> !it.contains(textAreaList[i])).collect(Collectors.toList()));
-         }
-        StringBuilder badWordList = new StringBuilder();
-        for (String noMatch : noMatches) {
-            badWordList.append(noMatch).append(" ");
-        }
-        badWordArea.setText(badWordList.toString());
     }
 }

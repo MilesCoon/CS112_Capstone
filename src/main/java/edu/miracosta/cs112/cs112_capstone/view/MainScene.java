@@ -30,7 +30,8 @@ public class MainScene extends Scene {
     private Spellchecker spellchecker;
     private WordCounter wordcounter;
 
-    private final Dictionary DICTIONARY = new Dictionary("words_alpha.txt", Language.ENGLISH);
+    private final Dictionary DICTIONARY = new Dictionary("src\\words_alpha.txt", Language.ENGLISH);
+//    private final File DICTIONARY = new File("words_alpha.txt");
 
     public MainScene() {
         super(new GridPane());

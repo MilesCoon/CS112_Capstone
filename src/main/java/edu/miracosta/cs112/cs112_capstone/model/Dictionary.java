@@ -22,18 +22,12 @@ public class Dictionary implements DictionaryInterface {
     }
 
     public Dictionary(String dictionaryFolder, Language dictionaryLanguage) {
-        File dir = new File(dictionaryFolder);
+        File file = new File(dictionaryFolder);
         languageType = dictionaryLanguage;
-        File[] directoryListing = dir.listFiles();
-        if (directoryListing != null) {
-            for (File child : directoryListing) {
-                // Do something with child
-                try (Stream<String> lines = Files.lines(Paths.get(child.toString()))) {
-                    dictionaryList.addAll(lines.toList());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+        try (Stream<String> lines = Files.lines(Paths.get(file.toString()))) {
+            dictionaryList.addAll(lines.toList());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
